@@ -340,19 +340,33 @@ export default function SongbookApp() {
   const teluguDisplay = { fontFamily: "'Noto Serif Telugu', serif" };
 
   if (showSplash) {
-    const cornerOrnament = (pos, cssTransform) => (
-      <svg
-        width="72"
-        height="72"
-        viewBox="0 0 100 100"
-        fill="none"
-        style={{ position: "absolute", ...pos, transform: cssTransform, opacity: 0.8 }}
-      >
-        <path d="M6 46 Q46 46 46 6" stroke={COLORS.goldSoft} strokeWidth="2" />
-        <path d="M6 70 Q70 70 70 6" stroke={COLORS.goldSoft} strokeWidth="1.3" opacity="0.6" />
-        <circle cx="46" cy="6" r="4" fill={COLORS.gold} />
-      </svg>
+    // Faithful-ish recreation of the original printed songbook's dark green
+    // cover: deep green ground, a thin double-rule frame, a small diagonal
+    // trail of diamond flourishes breaking into each frame corner, the title
+    // near the top and the dedication verse + reference near the bottom --
+    // all in off-white, independent of the app's own light/dark palette.
+    const COVER_GREEN = "#1d5c42";
+    const COVER_LINE = "rgba(245,240,225,0.85)";
+    const COVER_TEXT = "#f3efdf";
+
+    const cornerFlourish = (pos, cssTransform) => (
+      <div style={{ position: "absolute", ...pos, transform: cssTransform, display: "flex", gap: 3 }}>
+        {[14, 11, 8, 6].map((size, i) => (
+          <div
+            key={i}
+            style={{
+              width: size,
+              height: size,
+              background: COVER_LINE,
+              opacity: 1 - i * 0.18,
+              transform: "rotate(45deg)",
+              marginTop: i * 4,
+            }}
+          />
+        ))}
+      </div>
     );
+
     return (
       <div
         onClick={() => setShowSplash(false)}
@@ -366,68 +380,103 @@ export default function SongbookApp() {
           position: "relative",
           minHeight: "100vh",
           width: "100%",
-          background: COLORS.bg,
-          color: COLORS.ink,
+          background: COVER_GREEN,
+          color: COVER_TEXT,
           display: "flex",
-          flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
           cursor: "pointer",
           overflow: "hidden",
+          padding: 22,
+          boxSizing: "border-box",
           ...teluguBody,
-          transition: "background-color 0.2s ease, color 0.2s ease",
         }}
       >
-        {cornerOrnament({ top: 18, left: 18 }, "none")}
-        {cornerOrnament({ top: 18, right: 18 }, "scaleX(-1)")}
-        {cornerOrnament({ bottom: 18, left: 18 }, "scaleY(-1)")}
-        {cornerOrnament({ bottom: 18, right: 18 }, "scale(-1,-1)")}
-
-        <h1
-          style={{
-            ...teluguDisplay,
-            fontSize: 44,
-            fontWeight: 700,
-            color: COLORS.accent,
-            margin: 0,
-            textAlign: "center",
-            padding: "0 24px",
-          }}
-        >
-          సీయోను పాటలు
-        </h1>
-
-        <p
-          style={{
-            ...teluguBody,
-            maxWidth: 360,
-            margin: "22px auto 0 auto",
-            padding: "0 30px",
-            textAlign: "center",
-            fontSize: 15,
-            lineHeight: 1.7,
-            color: COLORS.mutedText,
-            fontStyle: "italic",
-          }}
-        >
-          సీయోను నివాసులారా, నేను వచ్చి మీమధ్యను నివాసముచేతును; సంతోషముగానుండి పాటలు పాడుడి..
-          <br />
-          <span style={{ fontStyle: "normal", color: COLORS.gold, fontSize: 13 }}>జెకర్యా 2:10</span>
-        </p>
-
+        {/* double-rule frame */}
         <div
           style={{
             position: "absolute",
-            bottom: 26,
-            left: 0,
-            right: 0,
-            textAlign: "center",
-            fontSize: 12,
-            letterSpacing: 1,
-            color: COLORS.mutedText,
+            top: 22,
+            left: 22,
+            right: 22,
+            bottom: 22,
+            border: `1.5px solid ${COVER_LINE}`,
+          }}
+        />
+        <div
+          style={{
+            position: "absolute",
+            top: 30,
+            left: 30,
+            right: 30,
+            bottom: 30,
+            border: `1px solid ${COVER_LINE}`,
+          }}
+        />
+
+        {cornerFlourish({ top: 14, left: 14 }, "none")}
+        {cornerFlourish({ top: 14, right: 14 }, "scaleX(-1)")}
+        {cornerFlourish({ bottom: 14, left: 14 }, "scaleY(-1)")}
+        {cornerFlourish({ bottom: 14, right: 14 }, "scale(-1,-1)")}
+
+        <div
+          style={{
+            position: "relative",
+            width: "100%",
+            maxWidth: 520,
+            minHeight: "calc(100vh - 110px)",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "space-between",
+            padding: "54px 30px",
+            boxSizing: "border-box",
           }}
         >
-          Created by Daniel Vijay G
+          <h1
+            style={{
+              ...teluguDisplay,
+              fontSize: 40,
+              fontWeight: 700,
+              color: COVER_TEXT,
+              margin: 0,
+              textAlign: "center",
+            }}
+          >
+            సీయోను పాటలు
+          </h1>
+
+          <div style={{ textAlign: "center" }}>
+            <p
+              style={{
+                ...teluguBody,
+                maxWidth: 380,
+                margin: "0 auto",
+                textAlign: "center",
+                fontSize: 15.5,
+                lineHeight: 1.75,
+                color: COVER_TEXT,
+              }}
+            >
+              సీయోనువాసులారా,
+              <br />
+              నేను వచ్చి మీ మధ్యను నివాసము చేతును,
+              <br />
+              సంతోషముగా నుండి పాటలు పాడుడి
+              <br />
+              జెకర్యా 2:10
+            </p>
+            <div
+              style={{
+                marginTop: 22,
+                fontSize: 11.5,
+                letterSpacing: 1,
+                color: COVER_LINE,
+              }}
+            >
+              Created by Daniel Vijay G
+            </div>
+          </div>
         </div>
       </div>
     );
