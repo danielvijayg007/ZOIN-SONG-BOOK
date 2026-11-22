@@ -223,6 +223,7 @@ function loadFontScale() {
 export default function SongbookApp() {
   useTeluguFont();
 
+  const [showSplash, setShowSplash] = useState(true);
   const [query, setQuery] = useState("");
   const [activeNum, setActiveNum] = useState(null);
   const [activeSection, setActiveSection] = useState(null);
@@ -337,6 +338,46 @@ export default function SongbookApp() {
 
   const teluguBody = { fontFamily: "'Noto Sans Telugu', sans-serif" };
   const teluguDisplay = { fontFamily: "'Noto Serif Telugu', serif" };
+
+  if (showSplash) {
+    return (
+      <div
+        onClick={() => setShowSplash(false)}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") setShowSplash(false);
+        }}
+        aria-label="Open సీయోను పాటలు"
+        style={{
+          minHeight: "100vh",
+          width: "100%",
+          background: COLORS.bg,
+          color: COLORS.ink,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          cursor: "pointer",
+          ...teluguBody,
+          transition: "background-color 0.2s ease, color 0.2s ease",
+        }}
+      >
+        <h1
+          style={{
+            ...teluguDisplay,
+            fontSize: 44,
+            fontWeight: 700,
+            color: COLORS.accent,
+            margin: 0,
+            textAlign: "center",
+            padding: "0 24px",
+          }}
+        >
+          సీయోను పాటలు
+        </h1>
+      </div>
+    );
+  }
 
   return (
     <div
