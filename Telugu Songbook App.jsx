@@ -340,31 +340,44 @@ export default function SongbookApp() {
   const teluguDisplay = { fontFamily: "'Noto Serif Telugu', serif" };
 
   if (showSplash) {
-    // Faithful-ish recreation of the original printed songbook's dark green
-    // cover: deep green ground, a thin double-rule frame, a small diagonal
-    // trail of diamond flourishes breaking into each frame corner, the title
-    // near the top and the dedication verse + reference near the bottom --
-    // all in off-white, independent of the app's own light/dark palette.
-    const COVER_GREEN = "#1d5c42";
-    const COVER_LINE = "rgba(245,240,225,0.85)";
-    const COVER_TEXT = "#f3efdf";
-
-    const cornerFlourish = (pos, cssTransform) => (
-      <div style={{ position: "absolute", ...pos, transform: cssTransform, display: "flex", gap: 3 }}>
-        {[14, 11, 8, 6].map((size, i) => (
-          <div
+    // A single thin frame with an elegant leaf/vine flourish growing in from
+    // two opposite corners (top-right and bottom-left), the way a printed
+    // page border is often drawn. Uses the app's own palette and fonts --
+    // only the ornament is new, nothing about color or typography changes.
+    const leafVine = (pos, cssTransform) => (
+      <svg
+        width="92"
+        height="92"
+        viewBox="0 0 120 120"
+        style={{ position: "absolute", ...pos, transform: cssTransform }}
+      >
+        <path
+          d="M120 0 C 118 28, 104 46, 86 54 C 68 62, 58 76, 58 100 C 58 110, 60 116, 62 120"
+          fill="none"
+          stroke={COLORS.gold}
+          strokeWidth="1.4"
+          strokeLinecap="round"
+        />
+        {[
+          { cx: 110, cy: 10, rx: 10, ry: 5, rot: 40 },
+          { cx: 97, cy: 24, rx: 11, ry: 5, rot: 15 },
+          { cx: 88, cy: 40, rx: 9, ry: 4.5, rot: -20 },
+          { cx: 73, cy: 55, rx: 11, ry: 5, rot: -55 },
+          { cx: 62, cy: 72, rx: 9, ry: 4.5, rot: -85 },
+          { cx: 58, cy: 92, rx: 10, ry: 4.5, rot: -100 },
+        ].map((leaf, i) => (
+          <ellipse
             key={i}
-            style={{
-              width: size,
-              height: size,
-              background: COVER_LINE,
-              opacity: 1 - i * 0.18,
-              transform: "rotate(45deg)",
-              marginTop: i * 4,
-            }}
+            cx={leaf.cx}
+            cy={leaf.cy}
+            rx={leaf.rx}
+            ry={leaf.ry}
+            fill={COLORS.gold}
+            opacity={0.9 - i * 0.07}
+            transform={`rotate(${leaf.rot} ${leaf.cx} ${leaf.cy})`}
           />
         ))}
-      </div>
+      </svg>
     );
 
     return (
@@ -380,8 +393,8 @@ export default function SongbookApp() {
           position: "relative",
           minHeight: "100vh",
           width: "100%",
-          background: COVER_GREEN,
-          color: COVER_TEXT,
+          background: COLORS.bg,
+          color: COLORS.ink,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
@@ -390,34 +403,23 @@ export default function SongbookApp() {
           padding: 22,
           boxSizing: "border-box",
           ...teluguBody,
+          transition: "background-color 0.2s ease, color 0.2s ease",
         }}
       >
-        {/* double-rule frame */}
+        {/* thin frame */}
         <div
           style={{
             position: "absolute",
-            top: 22,
-            left: 22,
-            right: 22,
-            bottom: 22,
-            border: `1.5px solid ${COVER_LINE}`,
-          }}
-        />
-        <div
-          style={{
-            position: "absolute",
-            top: 30,
-            left: 30,
-            right: 30,
-            bottom: 30,
-            border: `1px solid ${COVER_LINE}`,
+            top: 26,
+            left: 26,
+            right: 26,
+            bottom: 26,
+            border: `1px solid ${COLORS.goldSoft}`,
           }}
         />
 
-        {cornerFlourish({ top: 14, left: 14 }, "none")}
-        {cornerFlourish({ top: 14, right: 14 }, "scaleX(-1)")}
-        {cornerFlourish({ bottom: 14, left: 14 }, "scaleY(-1)")}
-        {cornerFlourish({ bottom: 14, right: 14 }, "scale(-1,-1)")}
+        {leafVine({ top: 26, right: 26 }, "none")}
+        {leafVine({ bottom: 26, left: 26 }, "rotate(180deg)")}
 
         <div
           style={{
@@ -438,7 +440,7 @@ export default function SongbookApp() {
               ...teluguDisplay,
               fontSize: 40,
               fontWeight: 700,
-              color: COVER_TEXT,
+              color: COLORS.accent,
               margin: 0,
               textAlign: "center",
             }}
@@ -455,7 +457,7 @@ export default function SongbookApp() {
                 textAlign: "center",
                 fontSize: 15.5,
                 lineHeight: 1.75,
-                color: COVER_TEXT,
+                color: COLORS.ink,
               }}
             >
               సీయోనువాసులారా,
@@ -464,14 +466,14 @@ export default function SongbookApp() {
               <br />
               సంతోషముగా నుండి పాటలు పాడుడి
               <br />
-              జెకర్యా 2:10
+              <span style={{ color: COLORS.gold }}>జెకర్యా 2:10</span>
             </p>
             <div
               style={{
                 marginTop: 22,
                 fontSize: 11.5,
                 letterSpacing: 1,
-                color: COVER_LINE,
+                color: COLORS.mutedText,
               }}
             >
               Created by Daniel Vijay G
