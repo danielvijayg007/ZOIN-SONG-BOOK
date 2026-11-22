@@ -340,6 +340,19 @@ export default function SongbookApp() {
   const teluguDisplay = { fontFamily: "'Noto Serif Telugu', serif" };
 
   if (showSplash) {
+    const cornerOrnament = (pos, cssTransform) => (
+      <svg
+        width="72"
+        height="72"
+        viewBox="0 0 100 100"
+        fill="none"
+        style={{ position: "absolute", ...pos, transform: cssTransform, opacity: 0.8 }}
+      >
+        <path d="M6 46 Q46 46 46 6" stroke={COLORS.goldSoft} strokeWidth="2" />
+        <path d="M6 70 Q70 70 70 6" stroke={COLORS.goldSoft} strokeWidth="1.3" opacity="0.6" />
+        <circle cx="46" cy="6" r="4" fill={COLORS.gold} />
+      </svg>
+    );
     return (
       <div
         onClick={() => setShowSplash(false)}
@@ -350,18 +363,26 @@ export default function SongbookApp() {
         }}
         aria-label="Open సీయోను పాటలు"
         style={{
+          position: "relative",
           minHeight: "100vh",
           width: "100%",
           background: COLORS.bg,
           color: COLORS.ink,
           display: "flex",
+          flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
           cursor: "pointer",
+          overflow: "hidden",
           ...teluguBody,
           transition: "background-color 0.2s ease, color 0.2s ease",
         }}
       >
+        {cornerOrnament({ top: 18, left: 18 }, "none")}
+        {cornerOrnament({ top: 18, right: 18 }, "scaleX(-1)")}
+        {cornerOrnament({ bottom: 18, left: 18 }, "scaleY(-1)")}
+        {cornerOrnament({ bottom: 18, right: 18 }, "scale(-1,-1)")}
+
         <h1
           style={{
             ...teluguDisplay,
@@ -375,6 +396,39 @@ export default function SongbookApp() {
         >
           సీయోను పాటలు
         </h1>
+
+        <p
+          style={{
+            ...teluguBody,
+            maxWidth: 360,
+            margin: "22px auto 0 auto",
+            padding: "0 30px",
+            textAlign: "center",
+            fontSize: 15,
+            lineHeight: 1.7,
+            color: COLORS.mutedText,
+            fontStyle: "italic",
+          }}
+        >
+          సీయోను నివాసులారా, నేను వచ్చి మీమధ్యను నివాసముచేతును; సంతోషముగానుండి పాటలు పాడుడి..
+          <br />
+          <span style={{ fontStyle: "normal", color: COLORS.gold, fontSize: 13 }}>జెకర్యా 2:10</span>
+        </p>
+
+        <div
+          style={{
+            position: "absolute",
+            bottom: 26,
+            left: 0,
+            right: 0,
+            textAlign: "center",
+            fontSize: 12,
+            letterSpacing: 1,
+            color: COLORS.mutedText,
+          }}
+        >
+          Created by Daniel Vijay G
+        </div>
       </div>
     );
   }
