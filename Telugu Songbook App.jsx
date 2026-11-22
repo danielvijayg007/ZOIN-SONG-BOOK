@@ -32,6 +32,123 @@ function normalizeRoman(s) {
     .replace(/(.)\1+/g, "$1");
 }
 
+// Deterministic Telugu -> plain-ASCII roman transliteration, used to show
+// lyrics in English script. Not a scholarly scheme -- just phonetic enough
+// to sing along from.
+const TG_VOWEL_INDEPENDENT = {
+  "అ": "a", "ఆ": "aa", "ఇ": "i", "ఈ": "ii", "ఉ": "u", "ఊ": "uu",
+  "ఋ": "ru", "ౠ": "ruu", "ఌ": "lu", "ౡ": "luu",
+  "ఎ": "e", "ఏ": "ee", "ఐ": "ai", "ఒ": "o", "ఓ": "oo", "ఔ": "au",
+};
+const TG_VOWEL_SIGN = {
+  "ా": "aa", "ి": "i", "ీ": "ii", "ు": "u", "ూ": "uu",
+  "ృ": "ru", "ౄ": "ruu", "ె": "e", "ే": "ee", "ై": "ai",
+  "ొ": "o", "ో": "oo", "ౌ": "au",
+};
+const TG_CONSONANT = {
+  "క": "k", "ఖ": "kh", "గ": "g", "ఘ": "gh", "ఙ": "ng",
+  "చ": "ch", "ఛ": "chh", "జ": "j", "ఝ": "jh", "ఞ": "ny",
+  "ట": "t", "ఠ": "th", "డ": "d", "ఢ": "dh", "ణ": "n",
+  "త": "t", "థ": "th", "ద": "d", "ధ": "dh", "న": "n",
+  "ప": "p", "ఫ": "ph", "బ": "b", "భ": "bh", "మ": "m",
+  "య": "y", "ర": "r", "ల": "l", "వ": "v",
+  "శ": "sh", "ష": "sh", "స": "s", "హ": "h",
+  "ళ": "l", "ఱ": "r", "ఴ": "l",
+};
+const TG_VIRAMA = "్";
+const TG_ANUSVARA = "ం";
+const TG_VISARGA = "ః";
+const TG_CHANDRABINDU = "ఁ";
+const TG_DIGIT = {
+  "౦": "0", "౧": "1", "౨": "2", "౩": "3", "౪": "4",
+  "౫": "5", "౬": "6", "౭": "7", "౮": "8", "౯": "9",
+};
+
+function teluguToRoman(str) {
+  const s = str || "";
+  const chars = Array.from(s);
+  let out = "";
+  for (let i = 0; i < chars.length; i++) {
+    const c = chars[i];
+    if (TG_VOWEL_INDEPENDENT[c] !== undefined) {
+      out += TG_VOWEL_INDEPENDENT[c];
+      continue;
+    }
+    if (TG_DIGIT[c] !== undefined) {
+      out += TG_DIGIT[c];
+      continue;
+    }
+    if (c === TG_ANUSVARA || c === TG_CHANDRABINDU) {
+      out += "m";
+      continue;
+    }
+    if (c === TG_VISARGA) {
+      out += "h";
+      continue;
+    }
+    if (c === TG_VIRAMA) {
+      continue;
+    }
+    if (TG_CONSONANT[c] !== undefined) {
+      const next = chars[i + 1];
+      if (next === TG_VIRAMA) {
+        out += TG_CONSONANT[c];
+        i++;
+        continue;
+      }
+      if (next !== undefined && TG_VOWEL_SIGN[next] !== undefined) {
+        out += TG_CONSONANT[c] + TG_VOWEL_SIGN[next];
+        i++;
+        continue;
+      }
+      out += TG_CONSONANT[c] + "a";
+      continue;
+    }
+    if (c === "।" || c === "॥") {
+      out += " ";
+      continue;
+    }
+    out += c;
+  }
+  return out.replace(/\s+/g, " ").trim();
+}
+
+// Capitalizes the first letter of each word, for nicer display than the
+// all-lowercase form used internally for search matching.
+function titleCaseRoman(s) {
+  return (s || "").replace(/[a-z]+/gi, (w) => w.charAt(0).toUpperCase() + w.slice(1));
+}
+
+function romanizeSong(song) {
+  if (!song) return song;
+  return {
+    ...song,
+    title: titleCaseRoman(song.titleRoman || teluguToRoman(song.title)),
+    composer: song.composer ? titleCaseRoman(song.composerRoman || teluguToRoman(song.composer)) : song.composer,
+    ref: song.ref ? teluguToRoman(song.ref) : song.ref,
+    refrain: song.refrain
+      ? {
+          label: song.refrain.label ? titleCaseRoman(teluguToRoman(song.refrain.label)) : song.refrain.label,
+          lines: song.refrain.lines.map((l) => teluguToRoman(l)),
+        }
+      : song.refrain,
+    verses: (song.verses || []).map((v) => ({
+      ...v,
+      lines: v.lines.map((l) => teluguToRoman(l)),
+    })),
+  };
+}
+
+const SCRIPT_MODE_KEY = "zion-songs-script-mode";
+
+function loadScriptMode() {
+  try {
+    const v = window.localStorage.getItem(SCRIPT_MODE_KEY);
+    if (v === "en" || v === "te") return v;
+  } catch (e) {}
+  return "te";
+}
+
 const LIGHT_COLORS = {
   bg: "#faf6ee",
   ink: "#2c2410",
@@ -111,6 +228,7 @@ export default function SongbookApp() {
   const [activeSection, setActiveSection] = useState(null);
   const [alphaMode, setAlphaMode] = useState(false);
   const [fontScale, setFontScale] = useState(loadFontScale);
+  const [scriptMode, setScriptMode] = useState(loadScriptMode);
   const [darkMode, setDarkMode] = useState(loadDarkMode);
   const inputRef = useRef(null);
 
@@ -123,6 +241,16 @@ export default function SongbookApp() {
       const next = !prev;
       try {
         window.localStorage.setItem(DARK_MODE_KEY, next ? "1" : "0");
+      } catch (e) {}
+      return next;
+    });
+  }
+
+  function toggleScriptMode() {
+    setScriptMode((prev) => {
+      const next = prev === "en" ? "te" : "en";
+      try {
+        window.localStorage.setItem(SCRIPT_MODE_KEY, next);
       } catch (e) {}
       return next;
     });
@@ -324,6 +452,8 @@ export default function SongbookApp() {
             position={`${activeIndex + 1} / ${navList.length}`}
             fontScale={fontScale}
             onFontScaleChange={changeFontScale}
+            scriptMode={scriptMode}
+            onToggleScriptMode={toggleScriptMode}
           />
         ) : activeSection ? (
           <SectionSongList section={activeSection} songs={sectionSongs} onOpen={openSong} onBack={backToContents} />
@@ -675,9 +805,13 @@ function SectionSongList({ section, songs, onOpen, onBack }) {
   );
 }
 
-function SongPage({ song, teluguDisplay, onBack, onPrev, onNext, hasPrev, hasNext, position, fontScale, onFontScaleChange }) {
+function SongPage({ song, teluguDisplay, onBack, onPrev, onNext, hasPrev, hasNext, position, fontScale, onFontScaleChange, scriptMode, onToggleScriptMode }) {
   const scale = fontScale || 1;
   const lyricsFontSize = 16.5 * scale;
+  const isEnglish = scriptMode === "en";
+  const displaySong = useMemo(() => (isEnglish ? romanizeSong(song) : song), [song, isEnglish]);
+  const englishStyle = { fontFamily: "system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif" };
+  const displayStyle = isEnglish ? englishStyle : teluguDisplay;
   return (
     <div style={{ marginTop: 6, paddingBottom: 12 }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10, gap: 8, flexWrap: "wrap" }}>
@@ -748,6 +882,23 @@ function SongPage({ song, teluguDisplay, onBack, onPrev, onNext, hasPrev, hasNex
               A+
             </button>
           </div>
+          <button
+            onClick={onToggleScriptMode}
+            aria-label="Toggle English / Telugu lyrics script"
+            title="Toggle English / Telugu lyrics script"
+            style={{
+              border: `1px solid ${COLORS.border}`,
+              background: isEnglish ? COLORS.chipBg : COLORS.cardBg,
+              color: isEnglish ? COLORS.chipText : COLORS.accent,
+              borderRadius: 8,
+              padding: "6px 10px",
+              fontSize: 12.5,
+              fontWeight: 700,
+              cursor: "pointer",
+            }}
+          >
+            {isEnglish ? "English" : "తెలుగు / English"}
+          </button>
           <div style={{ fontSize: 12, color: COLORS.gold }}>{position}</div>
         </div>
       </div>
@@ -762,24 +913,24 @@ function SongPage({ song, teluguDisplay, onBack, onPrev, onNext, hasPrev, hasNex
         }}
       >
         <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginBottom: 4, flexWrap: "wrap" }}>
-          <span style={{ ...teluguDisplay, fontSize: 26, fontWeight: 700, color: COLORS.accent }}>{song.num}.</span>
-          {song.ref && <span style={{ fontSize: 13, color: COLORS.gold, fontStyle: "italic" }}>{song.ref}</span>}
+          <span style={{ ...displayStyle, fontSize: 26, fontWeight: 700, color: COLORS.accent }}>{displaySong.num}.</span>
+          {displaySong.ref && <span style={{ ...displayStyle, fontSize: 13, color: COLORS.gold, fontStyle: "italic" }}>{displaySong.ref}</span>}
         </div>
-        {song.composer && (
-          <div style={{ fontSize: 12.5, color: COLORS.mutedText, marginBottom: 4 }}>{song.composer}</div>
+        {displaySong.composer && (
+          <div style={{ ...displayStyle, fontSize: 12.5, color: COLORS.mutedText, marginBottom: 4 }}>{displaySong.composer}</div>
         )}
         <div style={{ height: 1, background: COLORS.border, margin: "12px 0 16px 0" }} />
 
-        {!song.hasLyrics ? (
+        {!displaySong.hasLyrics ? (
           <div style={{ textAlign: "center", padding: "28px 10px" }}>
-            <div style={{ fontSize: 17, marginBottom: 8, color: COLORS.ink }}>{song.title}</div>
+            <div style={{ ...displayStyle, fontSize: 17, marginBottom: 8, color: COLORS.ink }}>{displaySong.title}</div>
             <div style={{ fontSize: 13, color: COLORS.pendingText, background: COLORS.pendingBg, display: "inline-block", padding: "6px 14px", borderRadius: 20 }}>
               lyrics not added yet
             </div>
           </div>
         ) : (
-          <>
-            {song.refrain && (
+          <div style={{ ...displayStyle }}>
+            {displaySong.refrain && (
               <div
                 style={{
                   background: COLORS.refrainBg,
@@ -792,15 +943,15 @@ function SongPage({ song, teluguDisplay, onBack, onPrev, onNext, hasPrev, hasNex
                   lineHeight: 1.7,
                 }}
               >
-                {song.refrain.label && (
-                  <span style={{ color: COLORS.accent, marginRight: 6 }}>{song.refrain.label}</span>
+                {displaySong.refrain.label && (
+                  <span style={{ color: COLORS.accent, marginRight: 6 }}>{displaySong.refrain.label}</span>
                 )}
-                {song.refrain.lines.map((l, i) => (
+                {displaySong.refrain.lines.map((l, i) => (
                   <div key={i}>{l}</div>
                 ))}
               </div>
             )}
-            {song.verses.map((v, i) => (
+            {displaySong.verses.map((v, i) => (
               <div key={i} style={{ marginBottom: 10, fontSize: lyricsFontSize, lineHeight: 1.7 }}>
                 {v.num && <span style={{ fontWeight: 700, color: COLORS.accent, marginRight: 4 }}>{v.num}.</span>}
                 {v.lines.map((l, j) => (
@@ -811,7 +962,7 @@ function SongPage({ song, teluguDisplay, onBack, onPrev, onNext, hasPrev, hasNex
                 ))}
               </div>
             ))}
-          </>
+          </div>
         )}
       </div>
 
