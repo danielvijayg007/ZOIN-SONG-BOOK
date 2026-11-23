@@ -11,7 +11,7 @@ function useTeluguFont() {
     link.id = FONT_LINK_ID;
     link.rel = "stylesheet";
     link.href =
-      "https://fonts.googleapis.com/css2?family=Noto+Sans+Telugu:wght@400;500;600;700&family=Noto+Serif+Telugu:wght@500;600;700&display=swap";
+      "https://fonts.googleapis.com/css2?family=Noto+Sans+Telugu:wght@400;500;600;700&family=Ramabhadra&display=swap";
     document.head.appendChild(link);
   }, []);
 }
@@ -194,6 +194,18 @@ function LyricLine({ prefix, text, tag }) {
   );
 }
 
+// A slender rule-diamond-rule flourish -- the book's one recurring signature
+// mark, echoed from the opening screen's frame into the main header.
+function HeaderRule({ width = 86 }) {
+  return (
+    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, width, margin: "0 auto" }}>
+      <div style={{ flex: 1, height: 1, background: COLORS.goldSoft }} />
+      <div style={{ width: 5, height: 5, background: COLORS.gold, transform: "rotate(45deg)", flexShrink: 0 }} />
+      <div style={{ flex: 1, height: 1, background: COLORS.goldSoft }} />
+    </div>
+  );
+}
+
 const SCRIPT_MODE_KEY = "zion-songs-script-mode";
 
 function loadScriptMode() {
@@ -204,44 +216,50 @@ function loadScriptMode() {
   return "te";
 }
 
+// A temple-brass-and-rubric palette: deep bottle green (the color of the
+// original printed cover), antique brass gold for ornament, and a rubric
+// red for song numbers -- the way numbers are often set in red ink in
+// printed hymnals.
 const LIGHT_COLORS = {
-  bg: "#faf6ee",
-  ink: "#2c2410",
-  accent: "#7a1f2b",
-  gold: "#a9793f",
-  goldSoft: "#c98a2c",
-  border: "#ecdfc4",
-  borderStrong: "#e3d6bb",
-  cardBg: "#fff",
-  refrainBg: "#fbf3e2",
-  chipBg: "#f6ead6",
-  chipText: "#8a4b16",
-  mutedText: "#8a7a5a",
-  pendingBg: "#f2ede0",
-  pendingText: "#b0a486",
-  markBg: "#f0dcae",
-  markText: "#4a1b0c",
-  disabled: "#c9bfa5",
+  bg: "#f1ead5",
+  ink: "#2a2318",
+  accent: "#9c2430",
+  gold: "#ad7c2e",
+  goldSoft: "#c89a42",
+  border: "#ddd0ac",
+  borderStrong: "#cdbd8e",
+  cardBg: "#fffdf6",
+  refrainBg: "#eef0e0",
+  chipBg: "#e3ecdf",
+  chipText: "#1f4d3a",
+  mutedText: "#6c6147",
+  pendingBg: "#ece4cd",
+  pendingText: "#a89873",
+  markBg: "#f2dd9e",
+  markText: "#3d1a10",
+  disabled: "#c4b896",
+  deep: "#1f4d3a",
 };
 
 const DARK_COLORS = {
-  bg: "#171009",
-  ink: "#f2e9d8",
-  accent: "#e3a35e",
-  gold: "#caa06a",
-  goldSoft: "#dcb679",
-  border: "#3c3122",
-  borderStrong: "#4c3d29",
-  cardBg: "#221a12",
-  refrainBg: "#2a2015",
-  chipBg: "#3a2a17",
-  chipText: "#e6b876",
-  mutedText: "#b6a68a",
-  pendingBg: "#241f18",
-  pendingText: "#7d7260",
-  markBg: "#5c4621",
-  markText: "#f6e2b2",
-  disabled: "#5c5243",
+  bg: "#11201a",
+  ink: "#ece3cd",
+  accent: "#d9a441",
+  gold: "#c9a556",
+  goldSoft: "#ddbd73",
+  border: "#2a3d31",
+  borderStrong: "#3a5243",
+  cardBg: "#17291f",
+  refrainBg: "#1c3326",
+  chipBg: "#23382c",
+  chipText: "#e3cd8a",
+  mutedText: "#9aab9c",
+  pendingBg: "#1c2a21",
+  pendingText: "#6e8073",
+  markBg: "#4a3c1c",
+  markText: "#f3dfa0",
+  disabled: "#52645a",
+  deep: "#0c1813",
 };
 
 // Mutated in place when the theme toggles, so every component reading
@@ -392,7 +410,7 @@ export default function SongbookApp() {
   }
 
   const teluguBody = { fontFamily: "'Noto Sans Telugu', sans-serif" };
-  const teluguDisplay = { fontFamily: "'Noto Serif Telugu', serif" };
+  const teluguDisplay = { fontFamily: "'Ramabhadra', serif" };
 
   if (showSplash) {
     // A single thin frame with an elegant leaf/vine flourish growing in from
@@ -586,12 +604,12 @@ export default function SongbookApp() {
               </svg>
             )}
           </button>
-          <div style={{ fontSize: 13, letterSpacing: 3, color: COLORS.gold, marginBottom: 4 }}>
-            ZION SONGS
-          </div>
           <h1 style={{ ...teluguDisplay, fontSize: 34, fontWeight: 700, color: COLORS.accent, margin: 0 }}>
             సీయోను పాటలు
           </h1>
+          <div style={{ marginTop: 8 }}>
+            <HeaderRule />
+          </div>
         </div>
 
         <div style={{ position: "sticky", top: 0, background: COLORS.bg, paddingBottom: 10, zIndex: 5 }}>
@@ -603,7 +621,7 @@ export default function SongbookApp() {
               border: `1.5px solid ${COLORS.borderStrong}`,
               borderRadius: 12,
               padding: "10px 14px",
-              boxShadow: "0 1px 3px rgba(122,31,43,0.06)",
+              boxShadow: "0 1px 3px rgba(31,77,58,0.08)",
             }}
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={COLORS.gold} strokeWidth="2" style={{ flexShrink: 0, marginRight: 10 }}>
@@ -1125,7 +1143,7 @@ function SongPage({ song, teluguDisplay, onBack, onPrev, onNext, hasPrev, hasNex
           border: `1px solid ${COLORS.border}`,
           borderRadius: 16,
           padding: "24px 22px",
-          boxShadow: "0 2px 10px rgba(122,31,43,0.06)",
+          boxShadow: "0 2px 10px rgba(31,77,58,0.08)",
         }}
       >
         <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginBottom: 4, flexWrap: "wrap" }}>
