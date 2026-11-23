@@ -1162,11 +1162,17 @@ function SongPage({ song, teluguDisplay, onBack, onPrev, onNext, hasPrev, hasNex
                   lineHeight: 1.7,
                 }}
               >
-                {displaySong.refrain.label && (
-                  <div style={{ color: COLORS.accent, marginBottom: 2 }}>{displaySong.refrain.label}</div>
-                )}
                 {refrainLines.map((l, i) => (
-                  <LyricLine key={i} text={l.text} tag={l.tag} />
+                  <LyricLine
+                    key={i}
+                    prefix={
+                      i === 0 && displaySong.refrain.label ? (
+                        <span style={{ color: COLORS.accent, marginRight: 4 }}>{displaySong.refrain.label}:</span>
+                      ) : null
+                    }
+                    text={l.text}
+                    tag={l.tag}
+                  />
                 ))}
               </div>
             )}
