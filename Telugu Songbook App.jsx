@@ -139,6 +139,61 @@ function romanizeSong(song) {
   };
 }
 
+// Many verse lines end with a short "॥ <cue word>" callback to the పల్లవి
+// (e.g. "...ధ్యానించు ॥ యెహోవా"), and that cue word differs per song. Split
+// it off so it can be rendered in its own fixed-position column -- lined up
+// the same way on every row of the song, regardless of how long the lyric
+// text before it is or what font size is in use. A handful of lines instead
+// use ॥ near the *start* as a section label (e.g. "అ॥పల్లవి ...") followed
+// by a full extra line of lyrics; those are left untouched by checking that
+// the trailing piece is short.
+function splitTagLine(line) {
+  const s = line || "";
+  const idx = s.lastIndexOf("॥");
+  if (idx === -1) return { text: s, tag: null };
+  const tail = s.slice(idx);
+  if (tail.length > 30) return { text: s, tag: null };
+  const text = s.slice(0, idx).trim();
+  const tagWord = tail.replace(/^॥\s*/, "").trim();
+  return { text, tag: tagWord || null };
+}
+
+function buildDisplayLine(line, isEnglish) {
+  const { text, tag } = splitTagLine(line);
+  if (!isEnglish) return { text, tag };
+  return {
+    text: teluguToRoman(text),
+    tag: tag ? titleCaseRoman(teluguToRoman(tag)) : null,
+  };
+}
+
+// One lyric row: the text grows/shrinks to fill the row, and the "॥ cue"
+// (if any) stays pinned to the row's right edge -- so every row's cue lines
+// up in the same column, at any font size.
+function LyricLine({ prefix, text, tag }) {
+  return (
+    <div style={{ display: "flex", alignItems: "baseline", gap: 10 }}>
+      <span style={{ flex: 1 }}>
+        {prefix}
+        {text}
+      </span>
+      {tag && (
+        <span
+          style={{
+            flexShrink: 0,
+            color: COLORS.gold,
+            fontSize: "0.85em",
+            whiteSpace: "nowrap",
+            paddingLeft: 8,
+          }}
+        >
+          &#x965; {tag}
+        </span>
+      )}
+    </div>
+  );
+}
+
 const SCRIPT_MODE_KEY = "zion-songs-script-mode";
 
 function loadScriptMode() {
@@ -958,6 +1013,21 @@ function SongPage({ song, teluguDisplay, onBack, onPrev, onNext, hasPrev, hasNex
   const displaySong = useMemo(() => (isEnglish ? romanizeSong(song) : song), [song, isEnglish]);
   const englishStyle = { fontFamily: "system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif" };
   const displayStyle = isEnglish ? englishStyle : teluguDisplay;
+
+  // Split the tag cue off each line using the ORIGINAL (Telugu) lines -- the roman
+  // transliterator turns "॥" into a space, so splitting has to happen before
+  // romanizing, not after.
+  const refrainLines = useMemo(() => {
+    if (!song.refrain) return null;
+    return song.refrain.lines.map((l) => buildDisplayLine(l, isEnglish));
+  }, [song, isEnglish]);
+
+  const verseLines = useMemo(() => {
+    return (song.verses || []).map((v) => ({
+      num: v.num,
+      lines: v.lines.map((l) => buildDisplayLine(l, isEnglish)),
+    }));
+  }, [song, isEnglish]);
   return (
     <div style={{ marginTop: 6, paddingBottom: 12 }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10, gap: 8, flexWrap: "wrap" }}>
@@ -1063,7 +1133,10 @@ function SongPage({ song, teluguDisplay, onBack, onPrev, onNext, hasPrev, hasNex
           {displaySong.ref && <span style={{ ...displayStyle, fontSize: 13, color: COLORS.gold, fontStyle: "italic" }}>{displaySong.ref}</span>}
         </div>
         {displaySong.composer && (
-          <div style={{ ...displayStyle, fontSize: 12.5, color: COLORS.mutedText, marginBottom: 4 }}>{displaySong.composer}</div>
+          <div style={{ ...displayStyle, fontSize: 12.5, color: COLORS.mutedText, marginBottom: 4 }}>
+            {isEnglish ? "Written by: " : "రచన: "}
+            {displaySong.composer}
+          </div>
         )}
         <div style={{ height: 1, background: COLORS.border, margin: "12px 0 16px 0" }} />
 
@@ -1090,21 +1163,26 @@ function SongPage({ song, teluguDisplay, onBack, onPrev, onNext, hasPrev, hasNex
                 }}
               >
                 {displaySong.refrain.label && (
-                  <span style={{ color: COLORS.accent, marginRight: 6 }}>{displaySong.refrain.label}</span>
+                  <div style={{ color: COLORS.accent, marginBottom: 2 }}>{displaySong.refrain.label}</div>
                 )}
-                {displaySong.refrain.lines.map((l, i) => (
-                  <div key={i}>{l}</div>
+                {refrainLines.map((l, i) => (
+                  <LyricLine key={i} text={l.text} tag={l.tag} />
                 ))}
               </div>
             )}
-            {displaySong.verses.map((v, i) => (
+            {verseLines.map((v, i) => (
               <div key={i} style={{ marginBottom: 10, fontSize: lyricsFontSize, lineHeight: 1.7 }}>
-                {v.num && <span style={{ fontWeight: 700, color: COLORS.accent, marginRight: 4 }}>{v.num}.</span>}
                 {v.lines.map((l, j) => (
-                  <div key={j} style={{ display: "inline" }}>
-                    {l}
-                    {j < v.lines.length - 1 ? <br /> : null}
-                  </div>
+                  <LyricLine
+                    key={j}
+                    prefix={
+                      j === 0 && v.num ? (
+                        <span style={{ fontWeight: 700, color: COLORS.accent, marginRight: 4 }}>{v.num}.</span>
+                      ) : null
+                    }
+                    text={l.text}
+                    tag={l.tag}
+                  />
                 ))}
               </div>
             ))}
