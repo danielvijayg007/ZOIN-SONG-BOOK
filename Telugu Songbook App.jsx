@@ -775,7 +775,7 @@ export default function SongbookApp() {
             onToggleScriptMode={toggleScriptMode}
           />
         ) : activeSection ? (
-          <SectionSongList section={activeSection} songs={sectionSongs} onOpen={openSong} onBack={backToContents} />
+          <SectionSongList section={activeSection} songs={sectionSongs} onOpen={openSong} onBack={backToContents} nextSection={nextSec ? nextSec.sec : null} onNextSection={() => { if (nextSec) { openSection(nextSec.sec); window.scrollTo(0, 0); } }} />
         ) : alphaMode ? (
           <AlphaList songs={alphaSorted} onOpen={openSong} onBack={() => setAlphaMode(false)} />
         ) : query.trim() ? (
@@ -1047,9 +1047,10 @@ function AlphaList({ songs, onOpen, onBack }) {
   );
 }
 
-function SectionSongList({ section, songs, onOpen, onBack }) {
+function SectionSongList({ section, songs, onOpen, onBack, nextSection, onNextSection }) {
   return (
     <div style={{ marginTop: 6 }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, marginBottom: 10 }}>
       <button
         onClick={onBack}
         style={{
@@ -1059,7 +1060,6 @@ function SectionSongList({ section, songs, onOpen, onBack }) {
           fontSize: 14,
           cursor: "pointer",
           padding: "4px 0",
-          marginBottom: 10,
           display: "flex",
           alignItems: "center",
           gap: 4,
@@ -1070,6 +1070,30 @@ function SectionSongList({ section, songs, onOpen, onBack }) {
         </svg>
         Contents
       </button>
+        {nextSection && (
+          <button
+            onClick={onNextSection}
+            aria-label={`Next section: ${nextSection.en || nextSection.name}`}
+            style={{
+              border: `1px solid ${COLORS.border}`,
+              background: COLORS.cardBg,
+              color: COLORS.accent,
+              fontSize: 13,
+              fontWeight: 600,
+              cursor: "pointer",
+              borderRadius: 8,
+              padding: "6px 10px",
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+              maxWidth: "62%",
+            }}
+          >
+            <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{nextSection.name}</span>
+            <span aria-hidden="true">&rarr;</span>
+          </button>
+        )}
+      </div>
 
       <div style={{ marginBottom: 10 }}>
         <div style={{ fontSize: 17, color: COLORS.accent, fontWeight: 700 }}>{section.name}</div>
