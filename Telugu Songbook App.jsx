@@ -600,17 +600,20 @@ export default function SongbookApp() {
                 <br />
                 <span style={{ color: COLORS.gold }}>జెకర్యా 2:10</span>
               </p>
-              <div
-                style={{
-                  marginTop: `calc(${W} * 0.04)`,
-                  fontSize: `calc(${W} * 0.024)`,
-                  letterSpacing: 1,
-                  color: COLORS.mutedText,
-                }}
-              >
-                Created by Daniel Vijay G
-              </div>
             </div>
+          </div>
+          <div
+            style={{
+              position: "absolute",
+              top: "93.8%",
+              right: "10%",
+              fontSize: `calc(${W} * 0.021)`,
+              letterSpacing: 0.5,
+              color: darkMode ? COLORS.mutedText : "#6b5a3e",
+              whiteSpace: "nowrap",
+            }}
+          >
+            Created by Daniel Vijay G
           </div>
         </div>
       </div>
@@ -879,6 +882,9 @@ function ContentsView({ sections, onSelect }) {
             </div>
           </button>
         ))}
+      </div>
+      <div style={{ textAlign: "right", marginTop: 28, fontSize: 11, letterSpacing: 0.5, color: COLORS.mutedText }}>
+        Created by Daniel Vijay G
       </div>
     </div>
   );
