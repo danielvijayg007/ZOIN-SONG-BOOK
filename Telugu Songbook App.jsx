@@ -123,12 +123,20 @@ function titleCaseRoman(s) {
   return (s || "").replace(/[a-z]+/gi, (w) => w.charAt(0).toUpperCase() + w.slice(1));
 }
 
+const COMPOSER_EN = {
+  "సహో. కె. ఎస్. సుందర సింగ్": "Bro. K S Sunder Sing",
+  "జి. జాన్ డేవిడ్\u200cసన్": "Bro. G John Davidson",
+};
+function composerEnglish(c) {
+  return COMPOSER_EN[c] || titleCaseRoman(teluguToRoman(c));
+}
+
 function romanizeSong(song) {
   if (!song) return song;
   return {
     ...song,
     title: titleCaseRoman(song.titleRoman || teluguToRoman(song.title)),
-    composer: song.composer ? titleCaseRoman(song.composerRoman || teluguToRoman(song.composer)) : song.composer,
+    composer: song.composer ? composerEnglish(song.composer) : song.composer,
     ref: song.ref ? teluguToRoman(song.ref) : song.ref,
     refrain: song.refrain
       ? {
@@ -456,6 +464,7 @@ export default function SongbookApp() {
       if (qRoman.length >= 2) {
         if (normalizeRoman(s.titleRoman).includes(qRoman)) return true;
         if (normalizeRoman(s.composerRoman).includes(qRoman)) return true;
+        if (s.composer && COMPOSER_EN[s.composer] && normalizeRoman(COMPOSER_EN[s.composer]).includes(qRoman)) return true;
       }
       return false;
     });
@@ -1193,7 +1202,7 @@ function SongPage({ song, teluguDisplay, onBack, onPrev, onNext, hasPrev, hasNex
         </div>
         {displaySong.composer && (
           <div style={{ ...displayStyle, fontSize: 12.5, color: COLORS.mutedText, marginBottom: 4 }}>
-            {isEnglish ? "Written by: " : "రచన: "}
+            {isEnglish ? "Composed by: " : "రచన: "}
             {displaySong.composer}
           </div>
         )}
