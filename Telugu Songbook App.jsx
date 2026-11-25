@@ -500,11 +500,36 @@ export default function SongbookApp() {
     setActiveNum(null);
     setQuery("");
   }
+  // In a section, Prev/Next carry on across section boundaries so a reader can
+  // keep going from the last song of one section into the first of the next.
+  function songsOfSection(sec) {
+    return sorted.filter((x) => x.num >= sec.range[0] && x.num <= sec.range[1]);
+  }
+  function adjacentSection(dir) {
+    if (!activeSection) return null;
+    let i = SECTIONS.indexOf(activeSection) + dir;
+    while (i >= 0 && i < SECTIONS.length) {
+      const list = songsOfSection(SECTIONS[i]);
+      if (list.length) return { sec: SECTIONS[i], list };
+      i += dir;
+    }
+    return null;
+  }
+  const nextSec = adjacentSection(1);
+  const prevSec = adjacentSection(-1);
   function goPrev() {
     if (activeIndex > 0) setActiveNum(navList[activeIndex - 1].num);
+    else if (activeIndex === 0 && prevSec) {
+      setActiveSection(prevSec.sec);
+      setActiveNum(prevSec.list[prevSec.list.length - 1].num);
+    }
   }
   function goNext() {
     if (activeIndex >= 0 && activeIndex < navList.length - 1) setActiveNum(navList[activeIndex + 1].num);
+    else if (activeIndex === navList.length - 1 && nextSec) {
+      setActiveSection(nextSec.sec);
+      setActiveNum(nextSec.list[0].num);
+    }
   }
   function backToSearch() {
     setActiveNum(null);
@@ -741,8 +766,8 @@ export default function SongbookApp() {
             onBack={activeSection ? () => setActiveNum(null) : backToSearch}
             onPrev={goPrev}
             onNext={goNext}
-            hasPrev={activeIndex > 0}
-            hasNext={activeIndex >= 0 && activeIndex < navList.length - 1}
+            hasPrev={activeIndex > 0 || (activeIndex === 0 && !!prevSec)}
+            hasNext={(activeIndex >= 0 && activeIndex < navList.length - 1) || (activeIndex === navList.length - 1 && !!nextSec)}
             position={`${activeIndex + 1} / ${navList.length}`}
             fontScale={fontScale}
             onFontScaleChange={changeFontScale}
