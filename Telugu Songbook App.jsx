@@ -772,22 +772,10 @@ export default function SongbookApp() {
         ) : (
           <>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", margin: "0 2px 10px 2px" }}>
-              <button
-                onClick={() => setShowSplash(true)}
-                aria-label="Go to first page"
-                style={{
-                  border: `1px solid ${COLORS.border}`,
-                  background: COLORS.cardBg,
-                  color: COLORS.accent,
-                  fontSize: 12.5,
-                  fontWeight: 600,
-                  cursor: "pointer",
-                  borderRadius: 8,
-                  padding: "6px 10px",
-                }}
-              >
-                &larr; First Page
-              </button>
+              <div style={{ ...teluguDisplay, fontSize: 18, fontWeight: 700, color: COLORS.accent }}>
+                విషయసూచిక
+                <span style={{ fontSize: 12.5, fontWeight: 500, color: COLORS.mutedText, marginLeft: 8, fontFamily: "'Noto Sans Telugu', sans-serif" }}>Contents</span>
+              </div>
               <button
                 onClick={openAlphaList}
                 style={{
