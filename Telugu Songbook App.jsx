@@ -746,7 +746,22 @@ export default function SongbookApp() {
         ) : (
           <>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", margin: "0 2px 10px 2px" }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: COLORS.accent, letterSpacing: 0.5 }}>CONTENTS</div>
+              <button
+                onClick={() => setShowSplash(true)}
+                aria-label="Go to first page"
+                style={{
+                  border: `1px solid ${COLORS.border}`,
+                  background: COLORS.cardBg,
+                  color: COLORS.accent,
+                  fontSize: 12.5,
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  borderRadius: 8,
+                  padding: "6px 10px",
+                }}
+              >
+                &larr; First Page
+              </button>
               <button
                 onClick={openAlphaList}
                 style={{
