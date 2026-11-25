@@ -637,6 +637,32 @@ export default function SongbookApp() {
       <div style={{ width: "100%", maxWidth: 720, padding: "28px 20px 0 20px" }}>
         <div style={{ position: "relative", textAlign: "center", marginBottom: 18 }}>
           <button
+            onClick={() => setShowSplash(true)}
+            aria-label="Go to first page"
+            title="First page"
+            style={{
+              position: "absolute",
+              top: 0,
+              right: 42,
+              border: `1px solid ${COLORS.border}`,
+              background: COLORS.cardBg,
+              color: COLORS.accent,
+              borderRadius: 8,
+              width: 34,
+              height: 34,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              cursor: "pointer",
+            }}
+          >
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M3 11l9-8 9 8" />
+              <path d="M5 10v10h14V10" />
+              <path d="M10 20v-6h4v6" />
+            </svg>
+          </button>
+          <button
             onClick={toggleDarkMode}
             aria-label={darkMode ? "Switch to light mode" : "Switch to dark mode"}
             title={darkMode ? "Switch to light mode" : "Switch to dark mode"}
