@@ -774,7 +774,7 @@ export default function SongbookApp() {
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", margin: "0 2px 10px 2px" }}>
               <div style={{ ...teluguDisplay, fontSize: 18, fontWeight: 700, color: COLORS.accent }}>
                 విషయసూచిక
-                <span style={{ fontSize: 12.5, fontWeight: 500, color: COLORS.mutedText, marginLeft: 8, fontFamily: "'Noto Sans Telugu', sans-serif" }}>Contents</span>
+                <span style={{ marginLeft: 8 }}>Contents</span>
               </div>
               <button
                 onClick={openAlphaList}
@@ -954,7 +954,6 @@ function AlphaList({ songs, onOpen, onBack }) {
 
       <div style={{ marginBottom: 10 }}>
         <div style={{ fontSize: 17, color: COLORS.accent, fontWeight: 700 }}>All Songs (A&ndash;Z)</div>
-        <div style={{ fontSize: 12.5, color: COLORS.mutedText }}>{songs.length} songs, sorted alphabetically by title</div>
       </div>
 
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
