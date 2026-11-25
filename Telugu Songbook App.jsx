@@ -1048,7 +1048,6 @@ function AlphaList({ songs, onOpen, onBack }) {
 }
 
 function SectionSongList({ section, songs, onOpen, onBack }) {
-  const addedCount = songs.filter((s) => s.hasLyrics).length;
   return (
     <div style={{ marginTop: 6 }}>
       <button
@@ -1074,9 +1073,6 @@ function SectionSongList({ section, songs, onOpen, onBack }) {
 
       <div style={{ marginBottom: 10 }}>
         <div style={{ fontSize: 17, color: COLORS.accent, fontWeight: 700 }}>{section.name}</div>
-        <div style={{ fontSize: 12.5, color: COLORS.mutedText }}>
-          {section.en} &middot; p. {section.pages} &middot; {addedCount} of {songs.length} added
-        </div>
       </div>
 
       {songs.length === 0 ? (
