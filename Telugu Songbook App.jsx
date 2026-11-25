@@ -262,8 +262,8 @@ function LyricGrid({ rows, fontSize }) {
               style={{
                 paddingTop: padTop,
                 paddingBottom: padBottom,
-                paddingLeft: isRef ? 14 : 0,
-                paddingRight: "0.6em",
+                paddingLeft: isRef ? 10 : 0,
+                paddingRight: "0.4em",
                 color: COLORS.accent,
                 fontWeight: 700,
                 whiteSpace: "nowrap",
@@ -282,7 +282,7 @@ function LyricGrid({ rows, fontSize }) {
                 gap: 10,
                 paddingTop: padTop,
                 paddingBottom: padBottom,
-                paddingRight: isRef ? 14 : 0,
+                paddingRight: isRef ? 10 : 0,
                 fontWeight: isRef ? 600 : undefined,
                 background: bg,
                 borderTopRightRadius: firstRef ? 8 : 0,
@@ -611,6 +611,9 @@ export default function SongbookApp() {
     <div
       style={{
         minHeight: "100vh",
+        boxSizing: "border-box",
+        width: "100%",
+        overflowX: "hidden",
         background: COLORS.bg,
         color: COLORS.ink,
         ...teluguBody,
@@ -621,17 +624,15 @@ export default function SongbookApp() {
         transition: "background-color 0.2s ease, color 0.2s ease",
       }}
     >
-      <div style={{ width: "100%", maxWidth: 720, padding: "28px 20px 0 20px" }}>
+      <div style={{ width: "100%", maxWidth: 720, boxSizing: "border-box", padding: "28px 20px 0 20px" }}>
         <div style={{ position: "relative", textAlign: "center", marginBottom: 18 }}>
+          <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginBottom: 8 }}>
           <button
             onClick={() => setShowSplash(true)}
             aria-label="Go to first page"
             title="First page"
             style={{
-              position: "absolute",
-              top: 0,
-              right: 42,
-              border: `1px solid ${COLORS.border}`,
+                            border: `1px solid ${COLORS.border}`,
               background: COLORS.cardBg,
               color: COLORS.accent,
               borderRadius: 8,
@@ -654,10 +655,7 @@ export default function SongbookApp() {
             aria-label={darkMode ? "Switch to light mode" : "Switch to dark mode"}
             title={darkMode ? "Switch to light mode" : "Switch to dark mode"}
             style={{
-              position: "absolute",
-              top: 0,
-              right: 0,
-              border: `1px solid ${COLORS.border}`,
+                            border: `1px solid ${COLORS.border}`,
               background: COLORS.cardBg,
               color: COLORS.accent,
               borderRadius: 8,
@@ -680,6 +678,7 @@ export default function SongbookApp() {
               </svg>
             )}
           </button>
+          </div>
           <div style={{ fontSize: 13, letterSpacing: 3, color: COLORS.gold, marginBottom: 4 }}>
             ZION SONGS
           </div>
@@ -734,7 +733,7 @@ export default function SongbookApp() {
         </div>
       </div>
 
-      <div style={{ width: "100%", maxWidth: 720, padding: "0 20px" }}>
+      <div style={{ width: "100%", maxWidth: 720, boxSizing: "border-box", padding: "0 20px" }}>
         {activeSong ? (
           <SongPage
             song={activeSong}
@@ -1129,7 +1128,7 @@ function SongPage({ song, teluguDisplay, onBack, onPrev, onNext, hasPrev, hasNex
           </svg>
           Back
         </button>
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", justifyContent: "flex-end", minWidth: 0 }}>
           <div
             style={{
               display: "flex",
