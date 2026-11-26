@@ -1252,16 +1252,16 @@ function SongPage({ song, teluguDisplay, onBack, onPrev, onNext, hasPrev, hasNex
             title="Toggle English / Telugu lyrics script"
             style={{
               border: `1px solid ${COLORS.border}`,
-              background: isEnglish ? COLORS.chipBg : COLORS.cardBg,
-              color: isEnglish ? COLORS.chipText : COLORS.accent,
+              background: COLORS.cardBg,
+              color: COLORS.accent,
               borderRadius: 8,
-              padding: "6px 10px",
-              fontSize: 12.5,
+              padding: "6px 14px",
+              fontSize: 13,
               fontWeight: 700,
               cursor: "pointer",
             }}
           >
-            {isEnglish ? "English" : "తెలుగు / English"}
+            {isEnglish ? "తెలుగు" : "English"}
           </button>
           <div style={{ fontSize: 12, color: COLORS.gold }}>{position}</div>
         </div>
