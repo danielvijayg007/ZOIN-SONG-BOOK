@@ -539,10 +539,12 @@ export default function SongbookApp() {
   const teluguDisplay = { fontFamily: "'Noto Serif Telugu', serif" };
 
   if (showSplash) {
-    // The splash uses the supplied border artwork exactly as given (frame plus
-    // two leaf-vine corners). The artwork keeps its own proportions; the page
-    // around it uses the same cream so it fills any screen.
-    const W = "min(100vw, 70.6vh)";
+    // The splash uses the supplied border artwork exactly as given. It is drawn
+    // as a 9-slice border image: the two leaf-vine corners keep their own
+    // proportions while the straight frame lines stretch, so the frame fills
+    // any screen shape (tall phones included) without distorting the leaves.
+    const W = "min(100vw, 640px)";
+    const k = "var(--k)";
     return (
       <div
         onClick={() => setShowSplash(false)}
@@ -557,7 +559,6 @@ export default function SongbookApp() {
           width: "100%",
           background: darkMode ? COLORS.bg : "#fffcf1",
           display: "flex",
-          alignItems: "center",
           justifyContent: "center",
           cursor: "pointer",
           overflow: "hidden",
@@ -566,27 +567,35 @@ export default function SongbookApp() {
       >
         <div
           style={{
+            "--k": `calc(${W} / 736)`,
             position: "relative",
             width: W,
-            aspectRatio: "736 / 1041",
+            height: "100vh",
+            minHeight: "100dvh",
+            boxSizing: "border-box",
           }}
         >
           <div
             style={{
               position: "absolute",
               inset: 0,
-              backgroundImage: `url(${SPLASH_FRAME})`,
-              backgroundSize: "100% 100%",
-              backgroundRepeat: "no-repeat",
+              boxSizing: "border-box",
+              borderStyle: "solid",
+              borderColor: "transparent",
+              borderWidth: `calc(${k} * 270) calc(${k} * 186) calc(${k} * 271) calc(${k} * 200)`,
+              borderImageSource: `url(${SPLASH_FRAME})`,
+              borderImageSlice: "270 186 271 200",
+              borderImageRepeat: "stretch",
               filter: darkMode ? "invert(1) hue-rotate(180deg) opacity(0.8)" : "none",
             }}
           />
           <div
             style={{
               position: "absolute",
-              inset: 0,
-              padding: "17% 15% 15%",
-              boxSizing: "border-box",
+              top: `calc(${k} * 150)`,
+              bottom: `calc(${k} * 150)`,
+              left: `calc(${k} * 110)`,
+              right: `calc(${k} * 110)`,
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
@@ -704,14 +713,19 @@ export default function SongbookApp() {
             )}
           </button>
           </div>
-          <div style={{ fontSize: 13, letterSpacing: 3, color: COLORS.gold, marginBottom: 4 }}>
-            ZION SONGS
-          </div>
-          <h1 style={{ ...teluguDisplay, fontSize: 34, fontWeight: 700, color: COLORS.accent, margin: 0 }}>
-            సీయోను పాటలు
-          </h1>
+          {!activeSong && (
+            <>
+              <div style={{ fontSize: 13, letterSpacing: 3, color: COLORS.gold, marginBottom: 4 }}>
+                ZION SONGS
+              </div>
+              <h1 style={{ ...teluguDisplay, fontSize: 34, fontWeight: 700, color: COLORS.accent, margin: 0 }}>
+                సీయోను పాటలు
+              </h1>
+            </>
+          )}
         </div>
 
+        {!activeSong && (
         <div style={{ position: "sticky", top: 0, background: COLORS.bg, paddingBottom: 10, zIndex: 5 }}>
           <div
             style={{
@@ -756,6 +770,7 @@ export default function SongbookApp() {
           </div>
 
         </div>
+        )}
       </div>
 
       <div style={{ width: "100%", maxWidth: 720, boxSizing: "border-box", padding: "0 20px" }}>
